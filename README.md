@@ -1,12 +1,19 @@
 Database Migration Checker For Laravel
 ======================================
 
-This package validates Laravel database migrations. It checks whether all up and down migrations run without errors.
+This package validates Laravel database migrations by ensuring every pending migration can be applied and rolled back
+without leaving schema differences. It is a Laravel wrapper around
+[Migration Checker](https://github.com/roslov/migration-checker) and integrates directly with Artisan, so you can use it
+as part of your local workflow or CI.
 
-It also validates that down migrations revert all changes, so there is no diff in the database after running them.
+The checker runs migrations one by one:
+1. Creates the migrations table if needed.
+2. Takes a schema snapshot.
+3. Applies the next pending migration.
+4. Rolls the migration back.
+5. Compares the schema dump to the original state.
 
-It is a Laravel package. It wraps the [Migration Checker](https://github.com/roslov/migration-checker).
-
+If the schema differs, the command fails and prints a diff so you can pinpoint what was left behind.
 
 ## Requirements
 
@@ -21,6 +28,9 @@ This package currently supports MySQL/MariaDB only.
 The console command `migration-checker:check` runs only in the test environment to avoid accidentally affecting the
 working database. Therefore, it should always be used with the option `--env=testing`.
 
+The command checks only pending migrations and executes them one at a time. It uses the migration paths in
+`database/migrations` and `database/settings` by default.
+
 
 ## Installation
 
@@ -33,7 +43,14 @@ composer require --dev roslov/laravel-migration-checker
 
 ## General usage
 
-You can run the command to check your migrations:
+### 1. Ensure a clean test database
+
+Run the checker against a disposable database. It must be empty so the schema snapshot reflects only what your
+migrations create.
+
+### 2. Run the checker
+
+You can run the command to check your migrations in the test environment:
 
 ```shell
 php artisan migration-checker:check --env=testing
@@ -41,7 +58,13 @@ php artisan migration-checker:check --env=testing
 
 Be careful to run it in the test environment, otherwise you can damage your data.
 
-Also, ensure that you run this command on an empty database each time.
+You can target a specific connection if you have multiple databases configured:
+
+```shell
+php artisan migration-checker:check --env=testing --database=mysql_testing
+```
+
+### 3. Review output
 
 The output example of the successful run:
 ```
@@ -133,7 +156,7 @@ docker run --network=test-network --rm \
 # Stops the test database
 docker stop test-db
 # Stops the test environment
-docker network rm meta-network
+docker network rm test-network
 ```
 
 
@@ -155,4 +178,3 @@ The code style is analyzed with [PHP_CodeSniffer](https://github.com/squizlabs/P
 ```shell
 ./vendor/bin/phpcs --extensions=php --colors --standard=PSR12Ext --ignore=vendor/* -p -s .
 ```
-
