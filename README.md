@@ -56,6 +56,19 @@ You can run the command to check your migrations in the test environment:
 php artisan migration-checker:check --env=testing
 ```
 
+By default, the command searches for migrations in such folders:
+* `database/migrations`
+* `database/settings`
+
+But you can add extra paths. For example, if there are some vendors that add their migrations.
+Use `--extra-path` for this:
+
+```shell
+php artisan migration-checker:check --env=testing \
+    --extra-path=vendor/laravel/sanctum/database/migrations \
+    --extra-path=vendor/another-vendor/some-project/database/migrations
+```
+
 Be careful to run it in the test environment, otherwise you can damage your data.
 
 You can target a specific connection if you have multiple databases configured:

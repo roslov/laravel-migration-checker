@@ -5,16 +5,13 @@ declare(strict_types=1);
 namespace Roslov\LaravelMigrationChecker\Adapters;
 
 use Illuminate\Support\Facades\Artisan;
+use LogicException;
 use Psr\Log\LoggerInterface;
 use Roslov\LaravelMigrationChecker\Helpers\MigrationHelper;
 use Roslov\MigrationChecker\Contract\MigrationInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-use function base_path;
-use function database_path;
 use function file_exists;
-use function ltrim;
-use function strlen;
 
 use const DIRECTORY_SEPARATOR;
 
@@ -35,7 +32,7 @@ final class Migration implements MigrationInterface
         private readonly LoggerInterface $logger,
         private readonly MigrationHelper $helper,
         private readonly string $database,
-        private readonly array $migrationPaths = ['migrations', 'settings'],
+        private readonly array $migrationPaths = ['database' . DIRECTORY_SEPARATOR . 'migrations'],
     ) {
     }
 
@@ -95,18 +92,16 @@ final class Migration implements MigrationInterface
      */
     private function getMigrationPath(string $migrationName): string
     {
-        $defaultAbsolutePath = database_path($this->migrationPaths[0] . DIRECTORY_SEPARATOR . "$migrationName.php");
-        $absolutePath = null;
+        if (!$this->migrationPaths) {
+            throw new LogicException('There should be at least one migration path.');
+        }
         foreach ($this->migrationPaths as $migrationPath) {
-            $absolutePath = database_path($migrationPath . DIRECTORY_SEPARATOR . "$migrationName.php");
-            if (file_exists($absolutePath)) {
-                break;
+            $path = $migrationPath . DIRECTORY_SEPARATOR . "$migrationName.php";
+            if (file_exists($path)) {
+                return $path;
             }
         }
 
-        return ltrim(
-            substr($absolutePath ?? $defaultAbsolutePath, strlen(base_path())),
-            DIRECTORY_SEPARATOR,
-        );
+        return $this->migrationPaths[0] . DIRECTORY_SEPARATOR . "$migrationName.php";
     }
 }
