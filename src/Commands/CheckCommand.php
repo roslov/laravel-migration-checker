@@ -18,18 +18,29 @@ use Symfony\Component\Console\Logger\ConsoleLogger;
 use function app;
 use function config;
 
+use const DIRECTORY_SEPARATOR;
+
 /**
  * Command: Checks migrations
  */
 final class CheckCommand extends Command
 {
     /**
+     * Default migration folders.
+     */
+    private const MIGRATION_FOLDERS = [
+        'database' . DIRECTORY_SEPARATOR . 'migrations',
+        'database' . DIRECTORY_SEPARATOR . 'settings',
+    ];
+
+    /**
      * @inheritDoc
      */
-    protected $signature = <<<'TXT'
+    protected $signature = <<<'SIG'
         migration-checker:check
-                {--database= : DB connection name (default: config(database.default))}
-        TXT;
+            {--database= : DB connection name (default: config(database.default))}
+            {--extra-path=* : Additional paths where migrations are located}
+        SIG;
 
     /**
      * @inheritDoc
@@ -51,10 +62,12 @@ final class CheckCommand extends Command
             return self::FAILURE;
         }
 
+        $migrationPaths = [...self::MIGRATION_FOLDERS, ...$this->option('extra-path')];
+
         $logger = new ConsoleLogger($this->output);
 
         $environment = new Environment($database);
-        $migration = new Migration($logger, new MigrationHelper(), $database);
+        $migration = new Migration($logger, new MigrationHelper(), $database, $migrationPaths);
         $printer = new Printer($this->output);
         $query = new MySqlQuery($database);
         $dump = new MySqlDump($query);
