@@ -10,9 +10,9 @@ use Roslov\MigrationChecker\Contract\QueryInterface;
 use function array_map;
 
 /**
- * Fetches data from MySQL.
+ * Fetches data from a database.
  */
-final class MySqlQuery implements QueryInterface
+final class SqlQuery implements QueryInterface
 {
     /**
      * Constructor.
