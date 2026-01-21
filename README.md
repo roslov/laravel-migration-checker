@@ -21,9 +21,15 @@ If the schema differs, the command fails and prints a diff so you can pinpoint w
 - Laravel 10.0 or higher
 
 
-## Limitation
+## Supported database types and versions
 
-This package currently supports MySQL/MariaDB only.
+This bundle supports MySQL, MariaDB, PostgreSQL, and others.
+
+See all supported database types and versions in the
+[Migration Checker documentation](https://github.com/roslov/migration-checker#supported-database-types-and-versions).
+
+
+## Limitations
 
 The console command `migration-checker:check` runs only in the test environment to avoid accidentally affecting the
 working database. Therefore, it should always be used with the option `--env=testing`.
@@ -45,7 +51,7 @@ composer require --dev roslov/laravel-migration-checker
 
 ### 1. Ensure a clean test database
 
-Run the checker against a disposable database. It must be empty so the schema snapshot reflects only what your
+Run the checker against a disposable database. It must be empty, so the schema snapshot reflects only what your
 migrations create.
 
 ### 2. Run the checker

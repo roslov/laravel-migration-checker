@@ -7,10 +7,11 @@ namespace Roslov\LaravelMigrationChecker\Commands;
 use Illuminate\Console\Command;
 use Roslov\LaravelMigrationChecker\Adapters\Environment;
 use Roslov\LaravelMigrationChecker\Adapters\Migration;
-use Roslov\LaravelMigrationChecker\Adapters\MySqlQuery;
 use Roslov\LaravelMigrationChecker\Adapters\Printer;
+use Roslov\LaravelMigrationChecker\Adapters\SqlQuery;
 use Roslov\LaravelMigrationChecker\Helpers\MigrationHelper;
-use Roslov\MigrationChecker\Db\MySqlDump;
+use Roslov\MigrationChecker\Db\DatabaseDetector;
+use Roslov\MigrationChecker\Db\Dumper;
 use Roslov\MigrationChecker\Db\SchemaStateComparer;
 use Roslov\MigrationChecker\MigrationChecker;
 use Symfony\Component\Console\Logger\ConsoleLogger;
@@ -69,16 +70,18 @@ final class CheckCommand extends Command
         $environment = new Environment($database);
         $migration = new Migration($logger, new MigrationHelper(), $database, $migrationPaths);
         $printer = new Printer($this->output);
-        $query = new MySqlQuery($database);
-        $dump = new MySqlDump($query);
-        $comparer = new SchemaStateComparer($dump);
+        $query = new SqlQuery($database);
+        $detector = new DatabaseDetector($query);
+        $dumper = new Dumper($query, $detector);
+        $comparer = new SchemaStateComparer($dumper);
 
         $checker = new MigrationChecker(
-            $logger,
             $environment,
             $migration,
             $comparer,
             $printer,
+            $detector,
+            $logger,
         );
 
         $checker->check();
