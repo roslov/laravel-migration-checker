@@ -1,0 +1,133 @@
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'psalm.xml'
+
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'psalm.xml'
+
+name: Compatibility tests
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }} | Laravel ${{ matrix.laravel }}
+    runs-on: ubuntu-latest
+
+    env:
+      laravel-dir: app
+
+    strategy:
+      matrix:
+        php:
+          - 8.5
+          - 8.4
+          - 8.3
+          - 8.2
+          - 8.1
+        laravel:
+          - 12.11.2
+          - 12.7.1
+          - 12.0.11
+          - 11.6.1
+          - 11.0.9
+          - 10.3.3
+          - 10.0.7
+
+        # Incompatible combinations
+        exclude:
+          # Dependency incompatibility
+          - php: 8.1
+            laravel: 12.11.2
+          - php: 8.1
+            laravel: 12.7.1
+          - php: 8.1
+            laravel: 12.0.11
+          - php: 8.1
+            laravel: 11.6.1
+          - php: 8.1
+            laravel: 11.0.9
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          ini-values: date.timezone='UTC'
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Determine Composer cache directory on Linux
+        run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
+
+      - name: Cache dependencies installed with Composer
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.COMPOSER_CACHE_DIR }}
+          key: php${{ matrix.php }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            php${{ matrix.php }}-composer-
+
+      - name: Update Composer
+        run: composer self-update
+
+      - name: Install Laravel skeleton
+        run: |
+          COMPOSER_NO_AUDIT=1 COMPOSER_NO_SECURITY_BLOCKING=1 \
+            composer create-project "laravel/laravel:${{ matrix.laravel }}" ${{ env.laravel-dir }}
+
+      - name: Install dependencies
+        run: |
+          cd ${{ env.laravel-dir }}
+          COMPOSER_NO_AUDIT=1 COMPOSER_NO_SECURITY_BLOCKING=1 \
+            composer install
+
+      - name: Install ${{ github.repository }}
+        run: |
+          cd ${{ env.laravel-dir }}
+          composer config repositories.local path ${{ github.workspace }}
+          composer require \
+            --dev \
+            "${{ github.repository }}:*@dev" \
+            -W \
+            --no-security-blocking --no-audit
+
+      # TODO: Remove when the real SqLiteDumper is ready
+      - name: Replace Dumper with the fake one to test query and migration runners for compatibility
+        run: |
+          cat <<'EOF' > ${{ env.laravel-dir }}/vendor/roslov/migration-checker/src/Db/Dumper.php
+          <?php
+          declare(strict_types=1);
+          namespace Roslov\MigrationChecker\Db;
+          final class Dumper implements \Roslov\MigrationChecker\Contract\DumperInterface
+          {
+            public function __construct(private readonly \Roslov\MigrationChecker\Contract\QueryInterface $query) {}
+            public function getDump(): \Roslov\MigrationChecker\Contract\StateInterface
+            {
+              $this->query->execute('SELECT 1');
+              return new State('-- Fake dump!');
+            }
+          }
+          EOF
+
+      - name: Run Migration Checker console command
+        run: |
+          cd ${{ env.laravel-dir }}
+          touch database/database_test.sqlite
+          DB_CONNECTION=sqlite DB_DATABASE=${{ github.workspace }}/${{ env.laravel-dir }}/database/database_test.sqlite \
+            php artisan migration-checker:check --env=testing -vv
