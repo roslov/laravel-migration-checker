@@ -59,7 +59,7 @@ migrations create.
 You can run the command to check your migrations in the test environment:
 
 ```shell
-php artisan migration-checker:check --env=testing
+php artisan migration-checker:check --env=testing -vv
 ```
 
 By default, the command searches for migrations in such folders:
@@ -70,7 +70,7 @@ But you can add extra paths. For example, if there are some vendors that add the
 Use `--extra-path` for this:
 
 ```shell
-php artisan migration-checker:check --env=testing \
+php artisan migration-checker:check --env=testing -vv \
     --extra-path=vendor/laravel/sanctum/database/migrations \
     --extra-path=vendor/another-vendor/some-project/database/migrations
 ```
@@ -80,7 +80,7 @@ Be careful to run it in the test environment, otherwise you can damage your data
 You can target a specific connection if you have multiple databases configured:
 
 ```shell
-php artisan migration-checker:check --env=testing --database=mysql_testing
+php artisan migration-checker:check --env=testing --database=mysql_testing -vv
 ```
 
 ### 3. Review output
@@ -171,7 +171,7 @@ done
 # This command should fail if there are problems with migrations
 docker run --network=test-network --rm \
     your-project-image:latest \
-    php artisan migration-checker:check --env=testing
+    php artisan migration-checker:check --env=testing -vv
 # Stops the test database
 docker stop test-db
 # Stops the test environment
