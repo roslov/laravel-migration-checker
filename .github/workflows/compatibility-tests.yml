@@ -120,7 +120,7 @@ jobs:
             public function getDump(): \Roslov\MigrationChecker\Contract\StateInterface
             {
               $this->query->execute('SELECT 1');
-              return new State('-- Fake dump!');
+              return new State('');
             }
           }
           EOF
