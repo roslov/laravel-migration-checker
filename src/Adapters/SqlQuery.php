@@ -28,6 +28,9 @@ final class SqlQuery implements QueryInterface
      */
     public function execute(string $query, array $params = []): array
     {
-        return array_map(static fn ($row) => (array) $row, DB::connection($this->database)->select($query, $params));
+        return array_map(
+            static fn ($row): array => (array) $row,
+            DB::connection($this->database)->select($query, $params),
+        );
     }
 }

@@ -1,23 +1,17 @@
 on:
   pull_request:
-    paths-ignore:
+    paths-ignore: &paths_ignore
       - 'docs/**'
       - 'README.md'
       - 'CHANGELOG.md'
       - '.gitignore'
       - '.gitattributes'
       - 'infection.json.dist'
+      - Makefile
       - 'psalm.xml'
 
   push:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'infection.json.dist'
-      - 'psalm.xml'
+    paths-ignore: *paths_ignore
 
 name: Compatibility tests
 
@@ -69,7 +63,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           ini-values: date.timezone='UTC'
-          coverage: pcov
+          coverage: none
           tools: composer:v2
 
       - name: Determine Composer cache directory on Linux
@@ -107,7 +101,6 @@ jobs:
             -W \
             --no-security-blocking --no-audit
 
-      # TODO: Remove when the real SqLiteDumper is ready
       - name: Replace Dumper with the fake one to test query and migration runners for compatibility
         run: |
           cat <<'EOF' > ${{ env.laravel-dir }}/vendor/roslov/migration-checker/src/Db/Dumper.php

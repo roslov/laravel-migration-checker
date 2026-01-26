@@ -16,9 +16,6 @@ use Roslov\MigrationChecker\Db\SchemaStateComparer;
 use Roslov\MigrationChecker\MigrationChecker;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 
-use function app;
-use function config;
-
 use const DIRECTORY_SEPARATOR;
 
 /**
@@ -55,15 +52,18 @@ final class CheckCommand extends Command
      */
     public function handle(): int
     {
-        $database = $this->option('database') ?: config('database.default');
+        /** @phpstan-ignore-next-line */
+        $defaultConnection = $this->laravel['db']->getDefaultConnection();
+        $database = $this->option('database') ?: $defaultConnection;
 
-        if (!app()->environment(['testing'])) {
+        if (!$this->laravel->environment(['testing'])) {
             $this->error('This command can run only in the test environment. Use option --env=testing');
 
             return self::FAILURE;
         }
 
-        $migrationPaths = [...self::MIGRATION_FOLDERS, ...$this->option('extra-path')];
+        $extraPaths = (array) $this->option('extra-path');
+        $migrationPaths = [...self::MIGRATION_FOLDERS, ...$extraPaths];
 
         $logger = new ConsoleLogger($this->output);
 

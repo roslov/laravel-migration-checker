@@ -1,23 +1,17 @@
 on:
   pull_request:
-    paths-ignore:
+    paths-ignore: &paths_ignore
       - 'docs/**'
       - 'README.md'
       - 'CHANGELOG.md'
       - '.gitignore'
       - '.gitattributes'
       - 'infection.json.dist'
+      - Makefile
       - 'psalm.xml'
 
   push:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'infection.json.dist'
-      - 'psalm.xml'
+    paths-ignore: *paths_ignore
 
 name: Unit tests
 
@@ -42,35 +36,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Install PHP
-        uses: shivammathur/setup-php@v2
+      - name: Set up the project
+        uses: ./.github/actions/setup-project
         with:
-          php-version: ${{ matrix.php }}
-          ini-values: date.timezone='UTC'
-          coverage: pcov
-          tools: composer:v2
-
-      - name: Determine Composer cache directory on Linux
-        if: matrix.os == 'ubuntu-latest'
-        run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
-
-      - name: Determine Composer cache directory on Windows
-        if: matrix.os == 'windows-latest'
-        run: echo "COMPOSER_CACHE_DIR=~\AppData\Local\Composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      - name: Cache dependencies installed with Composer
-        uses: actions/cache@v5
-        with:
-          path: ${{ env.COMPOSER_CACHE_DIR }}
-          key: php${{ matrix.php }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: |
-            php${{ matrix.php }}-composer-
-
-      - name: Update Composer
-        run: composer self-update
-
-      - name: Install dependencies with Composer
-        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+          os: ${{ matrix.os }}
+          php: ${{ matrix.php }}
 
       - name: Run tests with PHPUnit
         run: vendor/bin/phpunit --colors=always
