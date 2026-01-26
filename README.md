@@ -189,6 +189,12 @@ The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
 ./vendor/bin/phpunit
 ```
 
+inside a container, or
+
+```shell
+make test
+```
+
 ### Code style analysis
 
 The code style is analyzed with [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) and
@@ -197,3 +203,11 @@ The code style is analyzed with [PHP_CodeSniffer](https://github.com/squizlabs/P
 ```shell
 ./vendor/bin/phpcs --extensions=php --colors --standard=PSR12Ext --ignore=vendor/* -p -s .
 ```
+
+inside a container, or
+
+```shell
+make phpcs
+```
+
+from the host machine.
