@@ -20,7 +20,7 @@ final class MigrationHelper
      */
     public function getPendingMigrations(string $output): array
     {
-        $found = preg_match_all('# *(\w+) \.*[^\n]*Pending\s*(\n|$)#', $output, $matches);
+        $found = preg_match_all('# *([^\s\n\r]+) \.*[^\n]*Pending\s*(\n|$)#', $output, $matches);
 
         return $found ? $matches[1] : [];
     }

@@ -143,6 +143,7 @@ final class MigrationHelperTest extends TestCase
                       2025_01_02_000003_test .............................. Pending
                       2025_01_02_000004_insert_data ....................... Pending
                       2025_07_23_150414_rollback_of_something ............. Pending
+                      2025_01_24_155555_rollback-database-migrations ...... Pending
                       2025_07_24_122711_migration_efg ..................... Pending
                       2025_07_29_084338_add_columns ....................... Pending
                     TXT,
@@ -157,6 +158,8 @@ final class MigrationHelperTest extends TestCase
                     '2025_01_02_000003_test',
                     '2025_01_02_000004_insert_data',
                     '2025_07_23_150414_rollback_of_something',
+                    // A migration with dashes
+                    '2025_01_24_155555_rollback-database-migrations',
                     '2025_07_24_122711_migration_efg',
                     '2025_07_29_084338_add_columns',
                 ],
