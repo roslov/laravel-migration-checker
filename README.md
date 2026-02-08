@@ -1,6 +1,11 @@
 Database Migration Checker For Laravel
 ======================================
 
+[![Latest Stable Version](https://poser.pugx.org/roslov/laravel-migration-checker/v)](https://packagist.org/packages/roslov/laravel-migration-checker)
+[![Total Downloads](https://poser.pugx.org/roslov/laravel-migration-checker/downloads)](https://packagist.org/packages/roslov/laravel-migration-checker)
+[![License](https://poser.pugx.org/roslov/laravel-migration-checker/license)](https://packagist.org/packages/roslov/laravel-migration-checker)
+[![PHP Version Require](https://poser.pugx.org/roslov/laravel-migration-checker/require/php)](https://packagist.org/packages/roslov/laravel-migration-checker)
+
 This package validates Laravel database migrations by ensuring every pending migration can be applied and rolled back
 without leaving schema differences. It is a Laravel wrapper around
 [Migration Checker](https://github.com/roslov/migration-checker) and integrates directly with Artisan, so you can use it
