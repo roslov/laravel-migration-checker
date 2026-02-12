@@ -34,16 +34,6 @@ runs:
         $cacheDir = (composer config cache-dir)
         echo "COMPOSER_CACHE_DIR=$cacheDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-    - name: Determine Composer cache directory on Linux
-      if: inputs.os == 'ubuntu-latest'
-      shell: bash
-      run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
-
-    - name: Determine Composer cache directory on Windows
-      if: inputs.os == 'windows-latest'
-      shell: pwsh
-      run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
-
     - name: Cache dependencies installed with Composer
       uses: actions/cache@v5
       with:

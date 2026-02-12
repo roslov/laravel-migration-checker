@@ -71,23 +71,19 @@ final class Printer implements PrinterInterface
      *
      * @return string The colorized unified diff string
      */
-    // phpcs:disable SlevomatCodingStandard.Complexity.Cognitive.ComplexityTooHigh
     private function colorizeUnifiedDiffAnsi(string $diff): string
     {
         $out = [];
         foreach ((array) preg_split("/\r\n|\n|\r/", $diff) as $line) {
             $line = (string) $line;
-            if (str_starts_with($line, '+++ ') || str_starts_with($line, '--- ')) {
-                $out[] = self::COLOR_BOLD . self::COLOR_CYAN . $line . self::COLOR_RESET;
-            } elseif (str_starts_with($line, '@@')) {
-                $out[] = self::COLOR_BOLD . self::COLOR_CYAN . $line . self::COLOR_RESET;
-            } elseif (str_starts_with($line, '+')) {
-                $out[] = self::COLOR_GREEN . $line . self::COLOR_RESET;
-            } elseif (str_starts_with($line, '-')) {
-                $out[] = self::COLOR_RED . $line . self::COLOR_RESET;
-            } else {
-                $out[] = $line;
-            }
+            $out[] = match (true) {
+                str_starts_with($line, '+++ '),
+                str_starts_with($line, '--- '),
+                str_starts_with($line, '@@') => self::COLOR_BOLD . self::COLOR_CYAN . $line . self::COLOR_RESET,
+                str_starts_with($line, '+') => self::COLOR_GREEN . $line . self::COLOR_RESET,
+                str_starts_with($line, '-') => self::COLOR_RED . $line . self::COLOR_RESET,
+                default => $line,
+            };
         }
 
         return implode(PHP_EOL, $out) . PHP_EOL;

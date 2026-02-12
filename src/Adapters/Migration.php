@@ -41,7 +41,7 @@ final class Migration implements MigrationInterface
      */
     public function canUp(): bool
     {
-        return count($this->getPendingMigrations()) > 0;
+        return $this->getPendingMigrations() !== [];
     }
 
     /**
@@ -49,7 +49,11 @@ final class Migration implements MigrationInterface
      */
     public function up(): void
     {
-        $firstPendingMigration = $this->getPendingMigrations()[0];
+        $pendingMigrations = $this->getPendingMigrations();
+        if ($pendingMigrations === []) {
+            throw new LogicException('No pending migrations to apply.');
+        }
+        $firstPendingMigration = $pendingMigrations[0];
         $this->logger->info(sprintf('Applying the up migration "%s"...', $firstPendingMigration));
         $output = new BufferedOutput();
         Artisan::call('migrate', [
@@ -92,7 +96,7 @@ final class Migration implements MigrationInterface
      */
     private function getMigrationPath(string $migrationName): string
     {
-        if (!$this->migrationPaths) {
+        if ($this->migrationPaths === []) {
             throw new LogicException('There should be at least one migration path.');
         }
         foreach ($this->migrationPaths as $migrationPath) {
