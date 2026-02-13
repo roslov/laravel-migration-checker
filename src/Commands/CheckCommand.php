@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Roslov\LaravelMigrationChecker\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Roslov\LaravelMigrationChecker\Adapters\Environment;
 use Roslov\LaravelMigrationChecker\Adapters\Migration;
 use Roslov\LaravelMigrationChecker\Adapters\Printer;
@@ -52,11 +53,12 @@ final class CheckCommand extends Command
      */
     public function handle(): int
     {
-        /** @phpstan-ignore-next-line */
-        $defaultConnection = $this->laravel['db']->getDefaultConnection();
-        $database = $this->option('database') ?: $defaultConnection;
+        $databaseOption = $this->option('database');
+        $database = is_string($databaseOption) && $databaseOption !== ''
+            ? $databaseOption
+            : DB::getDefaultConnection();
 
-        if (!$this->laravel->environment(['testing'])) {
+        if (!$this->laravel->environment('testing')) {
             $this->error('This command can run only in the test environment. Use option --env=testing');
 
             return self::FAILURE;
