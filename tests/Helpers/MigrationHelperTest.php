@@ -130,7 +130,7 @@ final class MigrationHelperTest extends TestCase
                     '2025_01_02_000002_migration_2',
                 ],
             ],
-            'all migrations pending are pending' => [
+            'all migrations are pending' => [
                 <<<'TXT'
                       Migration name ............................... Batch / Status
                       0001_01_01_000000_migration_abc ..................... Pending

@@ -45,7 +45,7 @@ The command checks only pending migrations and executes them one at a time. It u
 
 ## Installation
 
-The package could be installed with composer:
+The package can be installed with Composer:
 
 ```shell
 composer require --dev roslov/laravel-migration-checker
@@ -200,6 +200,8 @@ inside a container, or
 make test
 ```
 
+from the host machine.
+
 ### Code style analysis
 
 The code style is analyzed with [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) and
@@ -216,3 +218,27 @@ make phpcs
 ```
 
 from the host machine.
+
+### Static analysis
+
+Static analysis is performed with [PHPStan](https://phpstan.org/). To run it:
+
+```shell
+./vendor/bin/phpstan analyse --memory-limit=256M .
+```
+
+inside a container, or
+
+```shell
+make phpstan
+```
+
+from the host machine.
+
+### All validations
+
+To run all validations at once (syntax check, code style, static analysis, and Rector):
+
+```shell
+make validate
+```
