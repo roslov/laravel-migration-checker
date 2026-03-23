@@ -204,7 +204,7 @@ from the host machine.
 
 ### Code style analysis
 
-The code style is analyzed with [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) and
+The code style is analyzed with [PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer) and
 [PSR-12 Ext coding standard](https://github.com/roslov/psr12ext). To run code style analysis:
 
 ```shell
