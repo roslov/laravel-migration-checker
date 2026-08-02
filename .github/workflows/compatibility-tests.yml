@@ -101,13 +101,20 @@ jobs:
           COMPOSER_NO_AUDIT=1 COMPOSER_NO_SECURITY_BLOCKING=1 \
             composer install
 
-      - name: Install ${{ github.repository }}
+      - name: Install the package under test
         run: |
           cd ${{ env.laravel-dir }}
+          # The Composer package name, not the GitHub repository slug: the two
+          # only coincide on the canonical repository. On a fork the slug is
+          # <fork-owner>/laravel-migration-checker, which no repository
+          # provides — the path repository below supplies the package under its
+          # real name — so requiring the slug failed on every fork.
+          package="$(php -r 'echo json_decode(file_get_contents($argv[1]), true)["name"];' \
+            "${{ github.workspace }}/composer.json")"
           composer config repositories.local path ${{ github.workspace }}
           composer require \
             --dev \
-            "${{ github.repository }}:*@dev" \
+            "$package:*@dev" \
             -W \
             --no-security-blocking --no-audit
 
