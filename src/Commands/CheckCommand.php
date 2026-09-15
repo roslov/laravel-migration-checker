@@ -17,6 +17,8 @@ use Roslov\MigrationChecker\Db\SchemaStateComparer;
 use Roslov\MigrationChecker\MigrationChecker;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 
+use function is_string;
+
 use const DIRECTORY_SEPARATOR;
 
 /**

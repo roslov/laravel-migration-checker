@@ -14,6 +14,8 @@ use function implode;
 use function preg_split;
 use function str_starts_with;
 
+use const PHP_EOL;
+
 /**
  * Prints schema state changes.
  */
