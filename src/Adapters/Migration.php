@@ -12,6 +12,7 @@ use Roslov\MigrationChecker\Contract\MigrationInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 use function file_exists;
+use function sprintf;
 
 use const DIRECTORY_SEPARATOR;
 

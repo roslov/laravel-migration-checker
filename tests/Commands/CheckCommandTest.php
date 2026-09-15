@@ -16,6 +16,8 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Throwable;
 
+use function is_array;
+
 /**
  * Tests CheckCommand.
  */
